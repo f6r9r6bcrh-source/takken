@@ -1,0 +1,17 @@
+{
+  "name": "宅建ゴロ単語帳",
+  "short_name": "宅建ゴロ",
+  "description": "宅地建物取引士のゴロ合わせ単語帳（P1〜P73）。音声読み上げ・よく出る出題例つき。",
+  "lang": "ja",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#12141a",
+  "theme_color": "#12141a",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
