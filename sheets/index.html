@@ -1,0 +1,63 @@
+<!DOCTYPE html><html lang="ja"><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#12141a">
+<meta name="robots" content="noindex, nofollow">
+<title>宅建 早見表</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;background:#12141a;overflow:hidden}
+body{display:flex;flex-direction:column;
+ font-family:-apple-system,"Hiragino Sans","Noto Sans JP",sans-serif;color:#e8ebf2;
+ padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
+header{flex:none;display:flex;align-items:center;justify-content:space-between;padding:10px 14px 8px}
+.t{font-size:15px;font-weight:800}
+.t small{display:block;font-size:10.5px;font-weight:700;color:#8c97ab;margin-top:2px}
+a.back{color:#7fb0ff;font-size:13px;font-weight:800;text-decoration:none;
+ border:1px solid rgba(127,176,255,.35);padding:7px 12px;border-radius:10px;white-space:nowrap}
+.strip{flex:1;display:flex;overflow-x:auto;scroll-snap-type:x mandatory;
+ -webkit-overflow-scrolling:touch;scrollbar-width:none;min-height:0}
+.strip::-webkit-scrollbar{display:none}
+.s{flex:none;width:100%;scroll-snap-align:center;display:flex;align-items:center;
+ justify-content:center;padding:0 10px}
+.s img{max-width:100%;max-height:100%;object-fit:contain;border-radius:14px;
+ box-shadow:0 10px 40px rgba(0,0,0,.5)}
+footer{flex:none;text-align:center;padding:8px 14px 12px}
+.dots{display:flex;gap:5px;justify-content:center;margin-bottom:7px;flex-wrap:wrap}
+.dots i{width:6px;height:6px;border-radius:99px;background:rgba(255,255,255,.22);transition:.2s}
+.dots i.on{background:#3d7dff;width:16px}
+.hint{font-size:11px;color:#8c97ab;font-weight:700;line-height:1.6}
+</style></head><body>
+<header>
+  <div class="t">📄 宅建 早見表 <small id="cap">1 / 12</small></div>
+  <a class="back" href="../">単語帳へ</a>
+</header>
+<div class="strip" id="strip">
+<div class="s"><img loading="lazy" src="01-業法の数字1-期間.png" alt="業法の数字1-期間"></div>
+<div class="s"><img loading="lazy" src="02-業法の数字2-金額.png" alt="業法の数字2-金額"></div>
+<div class="s"><img loading="lazy" src="03-法令の数字.png" alt="法令の数字"></div>
+<div class="s"><img loading="lazy" src="04-税の数字.png" alt="税の数字"></div>
+<div class="s"><img loading="lazy" src="05-用途地域マトリクス.png" alt="用途地域マトリクス"></div>
+<div class="s"><img loading="lazy" src="06-35条と37条.png" alt="35条と37条"></div>
+<div class="s"><img loading="lazy" src="07-許可と届出.png" alt="許可と届出"></div>
+<div class="s"><img loading="lazy" src="08-引っかけ対比1.png" alt="引っかけ対比1"></div>
+<div class="s"><img loading="lazy" src="09-引っかけ対比2.png" alt="引っかけ対比2"></div>
+<div class="s"><img loading="lazy" src="10-ゴロ一覧-業法.png" alt="ゴロ一覧-業法"></div>
+<div class="s"><img loading="lazy" src="11-ゴロ一覧-権利.png" alt="ゴロ一覧-権利"></div>
+<div class="s"><img loading="lazy" src="12-ゴロ一覧-法令税.png" alt="ゴロ一覧-法令税"></div>
+</div>
+<footer>
+  <div class="dots" id="dots"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+  <div class="hint">← 横にスワイプ →　／　画像を<b>長押し</b>すると写真に保存できます</div>
+</footer>
+<script>
+const T=["業法の数字1-期間", "業法の数字2-金額", "法令の数字", "税の数字", "用途地域マトリクス", "35条と37条", "許可と届出", "引っかけ対比1", "引っかけ対比2", "ゴロ一覧-業法", "ゴロ一覧-権利", "ゴロ一覧-法令税"];
+const strip=document.getElementById("strip"),dots=[...document.getElementById("dots").children],cap=document.getElementById("cap");
+function upd(){
+  const k=Math.round(strip.scrollLeft/strip.clientWidth);
+  dots.forEach((d,j)=>d.classList.toggle("on",j===k));
+  cap.textContent=(k+1)+" / "+T.length+"　"+T[k];
+}
+strip.addEventListener("scroll",()=>requestAnimationFrame(upd),{passive:true});
+upd();
+</script></body></html>
