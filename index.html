@@ -153,6 +153,8 @@
     background:rgba(61,125,255,.16);color:#cfe0ff;font-size:14px;font-weight:800;font-family:inherit;cursor:pointer}
   .memo{font-size:11.5px;line-height:1.7;color:#79839a;margin:14px 0 0}
   .memo b{color:#aeb8cc}
+  .vinfo{margin:8px 2px 0;font-size:11px;line-height:1.6;color:#79839a}
+  .vinfo b{color:#aeb8cc}
 
   @media(max-height:700px){
     .goro{font-size:clamp(20px,5.6vw,30px)}
@@ -224,8 +226,9 @@
 <div class="sheet" id="sheet">
   <h4>音声設定 <button id="close">✕</button></h4>
   <div class="fld">
-    <label>声を選ぶ（Siri系を優先して並べています）</label>
+    <label>声を選ぶ</label>
     <select id="vsel"></select>
+    <p class="vinfo" id="vinfo">読み込み中…</p>
   </div>
   <div class="fld">
     <label>カードの表示</label>
@@ -239,13 +242,19 @@
     </div>
   </div>
   <button class="test" id="test">🔊 この声で試す</button>
+
+  <div class="fld" style="margin-top:18px">
+    <label>オフライン再生</label>
+    <p class="vinfo" id="dlinfo" style="margin:0 2px 10px">確認中…</p>
+    <button class="test" id="dlbtn" style="display:none">⬇︎ 音声をぜんぶ保存（約24MB・Wi-Fi推奨）</button>
+  </div>
   <p class="memo">
-    <b>iPhoneでSiriの声を出すには</b><br>
-    設定 → アクセシビリティ → 読み上げコンテンツ → 声 → 日本語 で
-    <b>「Siri（声1〜4）」や「Kyoko（拡張）」をダウンロード</b>すると、
-    上のリストに出てきます。ダウンロードした声のほうが自然です。<br><br>
-    <b>聞き流し中は画面を消さないでください。</b>
-    iPhoneはブラウザが裏に回ると音声が止まります（画面が暗くならないよう自動でロック解除を試みます）。
+    <b>上の「声を選ぶ」はいつ使う？</b><br>
+    録音音声が読み込めなかったときの<b>予備</b>です。ふだんは使いません。
+    なおiPhoneでは <b>Siriの声は選べません</b>（AppleがWebページに公開していないため。
+    設定→アクセシビリティ→読み上げコンテンツの変更も反映されません）。<br><br>
+    <b>画面を消しても聞けます。</b>
+    ロック画面に出る再生・停止・曲送りボタンからも操作できます。
   </p>
 </div>
 
@@ -961,33 +970,51 @@ function voiceScore(v){
   if(v.localService) s+=10;
   return s;
 }
+let voiceSig="";
 function loadVoices(){
   const all=synth.getVoices()||[];
-  jaVoices=all.filter(v=>(v.lang||"").replace("_","-").toLowerCase().startsWith("ja"));
-  if(!jaVoices.length) jaVoices=all.slice();
-  jaVoices.sort((a,b)=>voiceScore(b)-voiceScore(a));
+  let ja=all.filter(v=>(v.lang||"").replace("_","-").toLowerCase().startsWith("ja"));
+  const onlyJa=ja.length>0;
+  if(!onlyJa) ja=all.slice();
+  ja.sort((a,b)=>voiceScore(b)-voiceScore(a));
+
+  /* 中身が変わっていなければ描き直さない（選択が飛ぶのを防ぐ） */
+  const sig=ja.map(v=>v.voiceURI).join("|");
+  if(sig===voiceSig) return;
+  voiceSig=sig; jaVoices=ja;
 
   const saved=localStorage.getItem(VKEY);
   voice=jaVoices.find(v=>v.voiceURI===saved) || jaVoices[0] || null;
 
-  const sel=$("vsel");
+  const sel=$("vsel"), info=$("vinfo");
   sel.innerHTML="";
   if(!jaVoices.length){
     const o=document.createElement("option");
-    o.textContent="日本語の声が見つかりません";
-    sel.appendChild(o); return;
+    o.textContent="読み込み中…（画面を一度タップしてください）";
+    sel.appendChild(o);
+    info.innerHTML="声の一覧がまだ取得できていません。<b>画面を一度タップ</b>してから、この設定を開き直してください。";
+    return;
   }
   jaVoices.forEach(v=>{
     const o=document.createElement("option");
     o.value=v.voiceURI;
-    o.textContent=(/siri/i.test(v.name)?"⭐️ ":"")+v.name+(v.localService?"":"（オンライン）");
+    o.textContent=v.name+(v.localService?"":"（オンライン）");
     if(voice&&v.voiceURI===voice.voiceURI) o.selected=true;
     sel.appendChild(o);
   });
+  info.innerHTML="この端末で使える日本語の声：<b>"+(onlyJa?jaVoices.length:0)+"個</b>"
+    +(onlyJa?"":"（日本語が見つからないため全言語を表示しています）")
+    +"<br>iPhoneは<b>Kyoko</b>のみのことが多く、その場合は選んでも音は変わりません。";
 }
+
+/* iOSは声の一覧を遅れて返すので、見つかるまで数回ためす */
 loadVoices();
 if(synth.onvoiceschanged!==undefined) synth.onvoiceschanged=loadVoices;
-setTimeout(loadVoices,600);   // iOSは遅れて返すことがある
+let vtry=0;
+const vtimer=setInterval(()=>{
+  loadVoices();
+  if(jaVoices.length || ++vtry>20) clearInterval(vtimer);
+},400);
 
 $("vsel").onchange=e=>{
   voice=jaVoices.find(v=>v.voiceURI===e.target.value)||voice;
@@ -999,6 +1026,8 @@ let unlocked=false;
 function unlockAudio(){
   if(unlocked)return; unlocked=true;
   try{const u=new SpeechSynthesisUtterance(" ");u.volume=0;u.lang="ja-JP";synth.speak(u);}catch(e){}
+  /* 解錠後に声の一覧が出そろうことがある */
+  setTimeout(loadVoices,300); setTimeout(loadVoices,1200);
 }
 addEventListener("touchend",unlockAudio,{once:true,passive:true});
 addEventListener("click",unlockAudio,{once:true});
@@ -1054,22 +1083,16 @@ async function readBody(d){
 
 let speaking=false;
 async function speakOne(full){
-  stop(); speaking=true; $("spk").classList.add("on"); $("spk").textContent="⏹";
+  speaking=true; $("spk").classList.add("on"); $("spk").textContent="⏹";
   const d=deck[i];
   await readGoro(d);
   if(full && speaking) await readBody(d);
   if(speaking) endSpeak();
 }
 function endSpeak(){speaking=false;$("spk").classList.remove("on");$("spk").textContent="🔊";}
-function stop(){
-  speaking=false; loop=null; synth.cancel(); endSpeak(); keepAwake(false);
-  $("loopG").classList.remove("act"); $("loopA").classList.remove("act");
-}
 
-async function runLoop(full,btn){
-  if(loop){stop();return;}
-  stop(); loop=full?"a":"g"; btn.classList.add("act"); keepAwake(true);
-  const mine=loop;
+async function runLoop(full){
+  const mine=loop=full?"a":"g";
   while(loop===mine){
     const d=deck[i];
     speaking=true; $("spk").classList.add("on"); $("spk").textContent="⏹";
@@ -1082,15 +1105,148 @@ async function runLoop(full,btn){
   }
 }
 
+/* ==================================================================
+   録音ファイル再生エンジン
+   audio/manifest.json があれば録音（Kyoko拡張版）を使う。
+   無ければ端末の合成音声にそのまま切り替わる。
+   1カード＝1ファイル。前半がゴロ、g秒から後半が解説。
+   ================================================================== */
+const AU=new Audio();
+AU.preload="auto"; AU.playsInline=true; AU.setAttribute("playsinline","");
+let AUMAP=null, useFiles=false, mode=null, flipped=false;
+
+fetch("audio/manifest.json").then(r=>r.ok?r.json():Promise.reject())
+ .then(m=>{
+   AUMAP={}; m.cards.forEach(c=>AUMAP[c.p]=c); useFiles=true;
+   const mb=Math.round(m.cards.length*0.33);
+   $("dlinfo").innerHTML="録音音声：<b>"+m.voice+"</b>（"+m.cards.length+"枚ぶん）<br>"
+     +"聞き流しは<b>画面を消しても鳴り続けます</b>。";
+   $("dlbtn").style.display="";
+ })
+ .catch(()=>{ useFiles=false;
+   $("dlinfo").innerHTML="このファイル単体では<b>端末の合成音声</b>を使います。"
+     +"録音音声つきで使うには、Web版（URL）を開いてください。";
+ });
+
+const srcFor=p=>"audio/P"+p+".m4a";
+
+function setMediaMeta(){
+  if(!("mediaSession" in navigator))return;
+  const d=deck[i]; if(!d)return;
+  try{
+    navigator.mediaSession.metadata=new MediaMetadata({
+      title:d.g,
+      artist:"P"+d.p+"｜"+d.t,
+      album:"宅建ゴロ単語帳",
+      artwork:[{src:"icon-192.png",sizes:"192x192",type:"image/png"},
+               {src:"icon-512.png",sizes:"512x512",type:"image/png"}]
+    });
+  }catch(e){}
+}
+
+function playCard(p){
+  const want=srcFor(p);
+  if(!AU.src || !AU.src.endsWith(want)) AU.src=want;
+  try{AU.currentTime=0;}catch(e){}
+  AU.playbackRate=rate;
+  flipped=false;
+  setMediaMeta();
+  const pr=AU.play();
+  if(pr&&pr.catch) pr.catch(()=>{ /* 自動再生が拒否されたら合成音声へ */
+    useFiles=false; stop(); speakOne(mode!=="goro");
+  });
+}
+
+/* ゴロだけモードは g 秒で切り上げ。全部モードは g 秒で自動的に裏返す */
+AU.addEventListener("timeupdate",()=>{
+  if(!mode)return;
+  const d=deck[i]; if(!d)return;
+  const info=AUMAP&&AUMAP[d.p]; if(!info)return;
+  if(mode==="goro"){
+    if(AU.currentTime>=info.g-0.04) advance();
+  }else if(!flipped && AU.currentTime>=info.g-0.04){
+    flipped=true; card.classList.add("flip");
+  }
+});
+AU.addEventListener("ended",()=>{ if(mode) advance(); });
+AU.addEventListener("error",()=>{
+  if(!mode)return;
+  useFiles=false; const m=mode; stop();
+  m==="one" ? speakOne(true) : runLoop(m==="all");
+});
+
+/* 次のカードへ。pause を挟まないのがコツ（挟むと裏で音が止まる） */
+function advance(){
+  if(mode==="one"||i>=deck.length-1){ stop(); return; }
+  go(1);
+  playCard(deck[i].p);
+}
+
+function updateBtns(){
+  const on=!!mode;
+  $("spk").classList.toggle("on",on);
+  $("spk").textContent=on?"⏹":"🔊";
+  $("loopG").classList.toggle("act",mode==="goro");
+  $("loopA").classList.toggle("act",mode==="all");
+}
+
+/* 再生の入口。m は "one"（今の1枚）/"goro"（ゴロ連続）/"all"（全部連続） */
+function play(m){
+  if(mode===m){ stop(); return; }
+  stop();
+  mode=m; keepAwake(m!=="one"); updateBtns();
+  if(useFiles && AUMAP && AUMAP[deck[i].p]) playCard(deck[i].p);
+  else m==="one" ? speakOne(true) : runLoop(m==="all");
+}
+
+function stop(){
+  mode=null; loop=null;
+  AU.pause(); try{AU.currentTime=0;}catch(e){}
+  synth.cancel(); speaking=false; endSpeak(); keepAwake(false);
+  updateBtns();
+}
+
+if("mediaSession" in navigator){
+  const H=(k,f)=>{try{navigator.mediaSession.setActionHandler(k,f);}catch(e){}};
+  H("play",()=>{ if(mode)AU.play(); else play("all"); });
+  H("pause",()=>AU.pause());
+  H("stop",()=>stop());
+  H("nexttrack",()=>{ go(1); if(mode)playCard(deck[i].p); });
+  H("previoustrack",()=>{ go(-1); if(mode)playCard(deck[i].p); });
+}
+
 /* ========== 操作 ========== */
 card.onclick=()=>card.classList.toggle("flip");
 $("next").onclick=()=>{stop();go(1);};
 $("prev").onclick=()=>{stop();go(-1);};
-$("spk").onclick=e=>{e.stopPropagation(); speaking||loop?stop():speakOne(true);};
-$("loopG").onclick=()=>runLoop(false,$("loopG"));
-$("loopA").onclick=()=>runLoop(true,$("loopA"));
+$("spk").onclick=e=>{e.stopPropagation(); play("one");};
+$("loopG").onclick=()=>play("goro");
+$("loopA").onclick=()=>play("all");
 $("shuffle").onclick=()=>{stop();for(let a=deck.length-1;a>0;a--){const b=Math.random()*(a+1)|0;[deck[a],deck[b]]=[deck[b],deck[a]];}i=0;render();};
-$("rate").oninput=e=>{rate=+e.target.value;$("rv").textContent=rate.toFixed(1);};
+$("rate").oninput=e=>{
+  rate=+e.target.value; $("rv").textContent=rate.toFixed(1);
+  AU.playbackRate=rate;                 // 再生中でも即座に反映される
+  localStorage.setItem("takken_rate",rate);
+};
+{ const r=parseFloat(localStorage.getItem("takken_rate"));
+  if(r>=0.6&&r<=1.6){rate=r;$("rate").value=r;$("rv").textContent=r.toFixed(1);AU.playbackRate=r;} }
+
+/* オフライン用にぜんぶ先読み */
+$("dlbtn").onclick=async()=>{
+  if(!AUMAP)return;
+  const ps=Object.keys(AUMAP), b=$("dlbtn");
+  b.disabled=true;
+  let done=0, failed=0;
+  for(const p of ps){
+    try{ const r=await fetch(srcFor(p)); if(!r.ok)failed++; await r.blob(); }
+    catch(e){ failed++; }
+    done++;
+    b.textContent="ダウンロード中…　"+done+" / "+ps.length;
+  }
+  b.textContent = failed ? "⚠️ "+failed+"件おちました（もう一度押してください）"
+                         : "✅ 完了　圏外でも聞けます";
+  b.disabled=false;
+};
 
 /* 出題例の表示・非表示（端末に保存） */
 const EXKEY="takken_show_ex";
@@ -1105,7 +1261,7 @@ $("test").onclick=()=>{synth.cancel();say("ピー"+(deck[i]?deck[i].p:1)+"。"+c
 
 /* 設定シート */
 const openCfg=on=>{$("sheet").classList.toggle("on",on);$("scrim").classList.toggle("on",on);};
-$("cfg").onclick=()=>openCfg(true);
+$("cfg").onclick=()=>{loadVoices();openCfg(true);};
 $("close").onclick=()=>openCfg(false);
 $("scrim").onclick=()=>openCfg(false);
 

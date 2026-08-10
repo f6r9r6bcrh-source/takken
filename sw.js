@@ -1,11 +1,15 @@
 /* 宅建ゴロ単語帳 — オフライン用サービスワーカー
-   一度ひらけば、あとは圏外・機内モードでも動きます。
-   アプリを更新したら CACHE の v1 を v2 … と上げてください。 */
-const CACHE = "takken-goro-v1";
-const ASSETS = [
+   アプリ本体は最初の起動で保存。音声は再生したぶんが自動でたまり、
+   設定の「音声をぜんぶ保存」でまとめて先読みできます。
+   アプリを更新したら CACHE の番号を上げてください。 */
+const CACHE = "takken-goro-v3";
+
+/* 起動に必要なものだけ先に保存する（音声24MBはここに含めない） */
+const SHELL = [
   "./",
   "./index.html",
   "./manifest.webmanifest",
+  "./audio/manifest.json",
   "./icon-192.png",
   "./icon-512.png",
   "./apple-touch-icon.png"
@@ -13,7 +17,9 @@ const ASSETS = [
 
 self.addEventListener("install", e => {
   e.waitUntil(
-    caches.open(CACHE).then(c => c.addAll(ASSETS)).then(() => self.skipWaiting())
+    caches.open(CACHE)
+      .then(c => Promise.allSettled(SHELL.map(u => c.add(u))))
+      .then(() => self.skipWaiting())
   );
 });
 
@@ -26,15 +32,28 @@ self.addEventListener("activate", e => {
 });
 
 self.addEventListener("fetch", e => {
-  if (e.request.method !== "GET") return;
+  const req = e.request;
+  if (req.method !== "GET") return;
+
+  const url = new URL(req.url);
+  if (url.origin !== self.location.origin) return;
+
   e.respondWith(
-    caches.match(e.request, { ignoreSearch: true }).then(hit => {
+    /* ignoreVary: 音声はブラウザが Range 付きで取りにくるので、
+       保存済みの完全なレスポンスにも当たるようにしておく */
+    caches.match(req, { ignoreSearch: true, ignoreVary: true }).then(hit => {
       if (hit) return hit;
-      return fetch(e.request).then(res => {
-        const copy = res.clone();
-        caches.open(CACHE).then(c => c.put(e.request, copy)).catch(() => {});
+      return fetch(req).then(res => {
+        /* 206（部分レスポンス）は Cache API に保存できないので入れない */
+        if (res && res.status === 200 && res.type === "basic") {
+          const copy = res.clone();
+          caches.open(CACHE).then(c => c.put(req, copy)).catch(() => {});
+        }
         return res;
-      }).catch(() => caches.match("./index.html"));
+      }).catch(() => {
+        if (req.mode === "navigate") return caches.match("./index.html");
+        return new Response("", { status: 504, statusText: "offline" });
+      });
     })
   );
 });
