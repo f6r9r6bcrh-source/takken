@@ -244,7 +244,8 @@
   <button class="test" id="test">🔊 この声で試す</button>
 
   <div class="fld" style="margin-top:18px">
-    <label>早見表</label>
+    <label>ほかのページ</label>
+    <a class="test" href="exam/" style="display:flex;align-items:center;justify-content:center;text-decoration:none;margin-bottom:8px">📝 演習・模試（50問・2時間）</a>
     <a class="test" id="sheetlink" href="sheets/" style="display:flex;align-items:center;justify-content:center;text-decoration:none">📄 早見表を見る（12枚）</a>
   </div>
 
@@ -1299,6 +1300,19 @@ addEventListener("touchend",e=>{
 addEventListener("beforeunload",()=>synth.cancel());
 
 build();
+
+/* 演習ページなどから ?p=38 で来たときに、そのカードを開く */
+{
+  const n=+new URLSearchParams(location.search).get("p");
+  const d=n?DATA.find(x=>x.p===n):null;
+  if(d){
+    if(!deck.includes(d)){
+      cat="すべて"; deck=[...DATA];
+      [...$("chips").children].forEach(x=>x.classList.toggle("on",x.dataset.c==="すべて"));
+    }
+    i=deck.indexOf(d); render();
+  }
+}
 </script>
 <script>
 if("serviceWorker" in navigator){

@@ -2,14 +2,18 @@
    アプリ本体は最初の起動で保存。音声は再生したぶんが自動でたまり、
    設定の「音声をぜんぶ保存」でまとめて先読みできます。
    アプリを更新したら CACHE の番号を上げてください。 */
-const CACHE = "takken-goro-v5";
+const CACHE = "takken-goro-v6";
 
-/* 起動に必要なものだけ先に保存する（音声24MBはここに含めない） */
+/* 起動に必要なものだけ先に保存する（音声24MBと早見表はここに含めない） */
 const SHELL = [
   "./",
   "./index.html",
   "./manifest.webmanifest",
   "./audio/manifest.json",
+  "./exam/",
+  "./exam/index.html",
+  "./exam/questions.js",
+  "./sheets/",
   "./icon-192.png",
   "./icon-512.png",
   "./apple-touch-icon.png"

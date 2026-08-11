@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#12141a">
+<meta name="robots" content="noindex, nofollow">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="宅建 演習">
+<link rel="apple-touch-icon" href="../apple-touch-icon.png">
+<title>宅建 演習</title>
+<style>
+  :root{
+    --bg:#12141a; --panel:#181c25; --line:#262c3a; --ink:#e8ebf2; --dim:#8c97ab;
+    --accent:#3d7dff; --ok:#22b07d; --ng:#e8434f; --warn:#e8912d;
+    --gyo:#e8912d; --ken:#3d9a6a; --hou:#8a6bd8; --zei:#d9607f; --men:#22b8a6;
+    --safeT:env(safe-area-inset-top,0px); --safeB:env(safe-area-inset-bottom,0px);
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  html{height:100%}
+  body{min-height:100svh;min-height:100dvh;background:var(--bg);color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Noto Sans JP",sans-serif;
+    -webkit-text-size-adjust:100%;overscroll-behavior-y:none}
+  .wrap{max-width:560px;margin:0 auto;padding:calc(14px + var(--safeT)) 14px calc(24px + var(--safeB))}
+  .hide{display:none !important}
+
+  h1{font-size:19px;font-weight:900;letter-spacing:-.01em}
+  .sub{font-size:11.5px;color:var(--dim);font-weight:700;margin-top:3px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:15px;margin-bottom:11px}
+  .lbl{font-size:10.5px;font-weight:900;color:var(--dim);letter-spacing:.08em;margin-bottom:9px}
+
+  /* カウントダウン */
+  .cd{text-align:center;padding:19px 15px;
+    background:linear-gradient(135deg,#1d2740,#171b26);border-color:#2b3category}
+  .cd{border-color:#2b3550}
+  .cd .d{font-size:52px;font-weight:900;line-height:1;letter-spacing:-.03em;
+    background:linear-gradient(180deg,#fff,#9db8ff);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .cd .u{font-size:15px;font-weight:900;color:#9db8ff;margin-left:4px}
+  .cd .date{font-size:11.5px;color:var(--dim);font-weight:700;margin-top:7px}
+  .cd .date button{background:none;border:0;color:#7fb0ff;font-size:11.5px;font-weight:800;
+    text-decoration:underline;cursor:pointer;font-family:inherit;padding:2px 4px}
+  .cd .wk{display:flex;gap:3px;justify-content:center;margin-top:12px}
+  .cd .wk i{flex:1;max-width:24px;height:5px;border-radius:9px;background:rgba(255,255,255,.13)}
+  .cd .wk i.on{background:var(--ok)}
+  .cd .st{font-size:11px;color:var(--dim);font-weight:800;margin-top:8px}
+
+  /* 予想得点 */
+  .score{display:flex;align-items:flex-end;gap:10px}
+  .score .big{font-size:44px;font-weight:900;line-height:.95;letter-spacing:-.03em}
+  .score .of{font-size:13px;color:var(--dim);font-weight:800;padding-bottom:5px}
+  .score .tag{margin-left:auto;font-size:11px;font-weight:900;padding:5px 11px;border-radius:99px}
+  .t-ok{background:rgba(34,176,125,.18);color:#5fe0ac;border:1px solid rgba(34,176,125,.4)}
+  .t-mid{background:rgba(232,145,45,.18);color:#ffc27a;border:1px solid rgba(232,145,45,.4)}
+  .t-ng{background:rgba(232,67,79,.16);color:#ff9098;border:1px solid rgba(232,67,79,.38)}
+  .gauge{height:9px;background:rgba(255,255,255,.08);border-radius:9px;margin:13px 0 6px;position:relative;overflow:hidden}
+  .gauge i{display:block;height:100%;border-radius:9px;background:linear-gradient(90deg,#3d7dff,#22b07d);transition:width .5s}
+  .gauge .line{position:absolute;top:-3px;bottom:-3px;width:2px;background:#fff;opacity:.75}
+  .gnote{display:flex;justify-content:space-between;font-size:10.5px;color:var(--dim);font-weight:800}
+
+  /* 分野バー */
+  .fld{margin-bottom:10px}
+  .fld:last-child{margin-bottom:0}
+  .fh{display:flex;align-items:baseline;font-size:12px;font-weight:800;margin-bottom:5px}
+  .fh .n{color:var(--dim);font-size:11px;margin-left:auto;font-weight:800}
+  .bar{height:7px;background:rgba(255,255,255,.07);border-radius:9px;overflow:hidden}
+  .bar i{display:block;height:100%;border-radius:9px;transition:width .5s}
+  .c-業法{background:var(--gyo)} .c-権利{background:var(--ken)} .c-法令{background:var(--hou)}
+  .c-税他{background:var(--zei)} .c-5免{background:var(--men)}
+
+  /* ボタン */
+  .btn{display:block;width:100%;border:1px solid var(--line);background:rgba(255,255,255,.05);
+    color:var(--ink);border-radius:14px;padding:14px;font-size:15px;font-weight:800;
+    cursor:pointer;font-family:inherit;text-align:left;transition:.12s;text-decoration:none}
+  .btn:active{transform:scale(.985)}
+  .btn.pri{background:var(--accent);border-color:var(--accent);color:#fff}
+  .btn.warnb{background:rgba(232,145,45,.16);border-color:rgba(232,145,45,.5);color:#ffc27a}
+  .btn small{display:block;font-size:11px;font-weight:700;opacity:.75;margin-top:3px}
+  .btns{display:flex;flex-direction:column;gap:8px}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+
+  /* 苦手 */
+  .weak{display:flex;align-items:center;gap:10px;padding:9px 0;border-top:1px solid rgba(255,255,255,.06)}
+  .weak:first-of-type{border-top:0}
+  .weak .p{flex:none;font-size:11px;font-weight:900;color:#7fb0ff;width:34px}
+  .weak .t{flex:1;font-size:12.5px;font-weight:700;line-height:1.4}
+  .weak .r{flex:none;font-size:11.5px;font-weight:900;color:#ff9098}
+  .weak a{color:inherit;text-decoration:none}
+
+  /* 試験画面 */
+  .exhead{position:sticky;top:0;z-index:5;background:rgba(18,20,26,.94);
+    backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+    border-bottom:1px solid var(--line);padding:calc(9px + var(--safeT)) 14px 9px;margin:0 -14px 12px}
+  .exrow{display:flex;align-items:center;gap:10px;max-width:560px;margin:0 auto}
+  .timer{font-size:23px;font-weight:900;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+  .timer.low{color:#ff9098}
+  .tinfo{font-size:10px;color:var(--dim);font-weight:800;line-height:1.35}
+  .tinfo b{color:#9db8ff}
+  .tinfo b.late{color:#ffc27a}
+  .exbtn{margin-left:auto;display:flex;gap:6px}
+  .exbtn button{border:1px solid var(--line);background:rgba(255,255,255,.06);color:var(--dim);
+    border-radius:10px;padding:7px 11px;font-size:11.5px;font-weight:800;cursor:pointer;font-family:inherit}
+  .pbar{height:3px;background:rgba(255,255,255,.09);border-radius:9px;margin-top:9px;overflow:hidden}
+  .pbar i{display:block;height:100%;background:var(--accent);transition:width .3s}
+
+  .qmeta{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+  .chip{font-size:10px;font-weight:900;padding:4px 10px;border-radius:99px}
+  .k-業法{background:rgba(232,145,45,.18);color:#ffc27a}
+  .k-権利{background:rgba(61,154,106,.18);color:#6fe0ab}
+  .k-法令{background:rgba(138,107,216,.2);color:#c0adf5}
+  .k-税他{background:rgba(217,96,127,.18);color:#ff9fba}
+  .k-5免{background:rgba(34,184,166,.18);color:#6fe6d8}
+  .qno{font-size:11.5px;font-weight:900;color:var(--dim)}
+  .qtext{font-size:15.5px;font-weight:700;line-height:1.72;margin-bottom:14px}
+  .opt{display:flex;gap:11px;width:100%;text-align:left;padding:13px;border-radius:13px;
+    border:1px solid var(--line);background:rgba(255,255,255,.04);color:var(--ink);
+    font-size:14px;line-height:1.6;font-weight:600;cursor:pointer;font-family:inherit;
+    margin-bottom:8px;transition:.12s}
+  .opt:active{transform:scale(.99)}
+  .opt .num{flex:none;width:23px;height:23px;border-radius:99px;border:1.5px solid var(--dim);
+    display:flex;align-items:center;justify-content:center;font-size:11.5px;font-weight:900;color:var(--dim)}
+  .opt.sel{border-color:var(--accent);background:rgba(61,125,255,.14)}
+  .opt.sel .num{background:var(--accent);border-color:var(--accent);color:#fff}
+  .opt.ok{border-color:var(--ok);background:rgba(34,176,125,.14)}
+  .opt.ok .num{background:var(--ok);border-color:var(--ok);color:#fff}
+  .opt.ng{border-color:var(--ng);background:rgba(232,67,79,.13)}
+  .opt.ng .num{background:var(--ng);border-color:var(--ng);color:#fff}
+
+  .exp{background:rgba(61,125,255,.1);border:1px solid rgba(61,125,255,.3);
+    border-radius:13px;padding:13px;font-size:13px;line-height:1.75;margin:12px 0}
+  .exp .h{font-size:11px;font-weight:900;margin-bottom:6px;letter-spacing:.05em}
+  .exp .h.ok{color:#5fe0ac} .exp .h.ng{color:#ff9098}
+  .exp a{color:#7fb0ff;font-weight:800}
+
+  .nav{display:flex;gap:8px;margin-top:14px}
+  .nav button{flex:1;border:1px solid var(--line);background:rgba(255,255,255,.06);color:var(--ink);
+    border-radius:13px;padding:14px;font-size:14.5px;font-weight:800;cursor:pointer;font-family:inherit}
+  .nav button.pri{background:var(--accent);border-color:var(--accent);color:#fff;flex:1.6}
+  .nav button:disabled{opacity:.35}
+  .flagb{flex:none !important;width:52px;font-size:17px !important}
+  .flagb.on{background:rgba(232,145,45,.2);border-color:var(--warn);color:#ffc27a}
+
+  /* 一覧グリッド */
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(42px,1fr));gap:6px}
+  .g{aspect-ratio:1;border-radius:9px;border:1px solid var(--line);background:rgba(255,255,255,.04);
+    color:var(--dim);font-size:12px;font-weight:900;cursor:pointer;font-family:inherit;
+    display:flex;align-items:center;justify-content:center;position:relative}
+  .g.done{background:rgba(61,125,255,.2);border-color:rgba(61,125,255,.5);color:#cfe0ff}
+  .g.cur{outline:2px solid #fff;outline-offset:1px}
+  .g.flag::after{content:"";position:absolute;top:3px;right:3px;width:5px;height:5px;
+    border-radius:99px;background:var(--warn)}
+  .g.ok{background:rgba(34,176,125,.22);border-color:rgba(34,176,125,.5);color:#7fe8bd}
+  .g.ng{background:rgba(232,67,79,.2);border-color:rgba(232,67,79,.5);color:#ffa3aa}
+
+  /* 結果 */
+  .res{text-align:center;padding:22px 15px}
+  .res .pt{font-size:60px;font-weight:900;line-height:.95;letter-spacing:-.04em}
+  .res .pt small{font-size:18px;color:var(--dim)}
+  .res .msg{font-size:14px;font-weight:900;margin-top:9px}
+  .res .sub2{font-size:11.5px;color:var(--dim);font-weight:700;margin-top:6px;line-height:1.7}
+  .stat{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px}
+  .stat div{background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:11px;padding:9px 6px}
+  .stat b{display:block;font-size:16px;font-weight:900;font-variant-numeric:tabular-nums}
+  .stat span{font-size:9.5px;color:var(--dim);font-weight:800}
+
+  .rq{border-top:1px solid var(--line);padding:13px 0}
+  .rq:first-of-type{border-top:0}
+  .rq .t{font-size:13px;font-weight:700;line-height:1.6;margin:6px 0 8px}
+  .rq .a{font-size:12px;line-height:1.7;font-weight:700}
+  .rq .a .y{color:#ff9098} .rq .a .c{color:#5fe0ac}
+  .rq .e{font-size:11.5px;color:#b9c3d5;line-height:1.7;margin-top:6px}
+
+  .modal{position:fixed;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:center;
+    justify-content:center;padding:22px;z-index:20}
+  .modal .box{background:var(--panel);border:1px solid var(--line);border-radius:18px;
+    padding:20px;max-width:340px;width:100%}
+  .modal h3{font-size:16px;font-weight:900;margin-bottom:8px}
+  .modal p{font-size:12.5px;color:var(--dim);line-height:1.7;font-weight:700;margin-bottom:15px}
+  .modal input{width:100%;height:46px;border-radius:11px;border:1px solid var(--line);
+    background:rgba(255,255,255,.06);color:#fff;font-size:16px;font-family:inherit;
+    padding:0 12px;margin-bottom:13px}
+  a.link{color:#7fb0ff;font-weight:800;text-decoration:none;font-size:12.5px}
+  .foot{text-align:center;margin-top:16px;font-size:11px;color:var(--dim);font-weight:700;line-height:2}
+</style>
+</head>
+<body>
+<div class="wrap" id="app"></div>
+
+<script src="questions.js"></script>
+<script>
+/* ================= 保存データ ================= */
+const KEY="takken_exam_v1";
+const DEF={examDate:"2026-10-18",hist:[],qstat:{},days:[],paused:null};
+let S=Object.assign({},DEF,JSON.parse(localStorage.getItem(KEY)||"{}"));
+const save=()=>localStorage.setItem(KEY,JSON.stringify(S));
+const $=id=>document.getElementById(id);
+const app=$("app");
+
+/* 本試験の分野別出題数 */
+const DIST={"業法":20,"権利":14,"法令":8,"税他":3,"5免":5};
+const CATS=Object.keys(DIST);
+const PASS=36;                       // 合格ラインの目安
+
+/* ================= 共通ロジック ================= */
+function todayKey(){const d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");}
+function markToday(){const t=todayKey();if(!S.days.includes(t)){S.days.push(t);S.days=S.days.slice(-400);save();}}
+function daysLeft(){
+  const e=new Date(S.examDate+"T00:00:00"), n=new Date();
+  n.setHours(0,0,0,0);
+  return Math.ceil((e-n)/86400000);
+}
+function streak(){
+  let n=0,d=new Date();d.setHours(0,0,0,0);
+  for(;;){
+    const k=d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+    if(S.days.includes(k)){n++;d.setDate(d.getDate()-1);}
+    else if(n===0){d.setDate(d.getDate()-1);
+      const k2=d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+      if(S.days.includes(k2)){continue;} else break;}
+    else break;
+    if(n>400)break;
+  }
+  return n;
+}
+/* 分野ごとの正答率（回答数が少ないときは控えめに見積もる） */
+function catRate(c){
+  let ok=0,n=0;
+  for(const k in S.qstat){const st=S.qstat[k];
+    if(st.c===c){ok+=st.ok;n+=st.n;}}
+  return {ok,n,rate:n?ok/n:0};
+}
+function expectedScore(){
+  let pt=0,total=0;
+  CATS.forEach(c=>{
+    const {rate,n}=catRate(c);
+    /* 回答数が少ないほど 25%(当てずっぽう) 寄りに補正する */
+    const w=Math.min(1,n/12);
+    const r=rate*w+0.25*(1-w);
+    pt+=r*DIST[c]; total+=DIST[c];
+  });
+  return {pt:Math.round(pt),total};
+}
+function passProb(){
+  const {pt}=expectedScore();
+  let ansTotal=0;for(const k in S.qstat)ansTotal+=S.qstat[k].n;
+  const diff=pt-PASS;
+  let p=1/(1+Math.exp(-diff/2.2));           // 得点差をなだらかに確率へ
+  const conf=Math.min(1,ansTotal/80);        // データが少ないうちは50%へ寄せる
+  p=p*conf+0.5*(1-conf);
+  return Math.round(p*100);
+}
+/* 苦手＝P番号ごとに正答率を集計して低い順に */
+function weakList(n){
+  const byP={};
+  for(const k in S.qstat){const st=S.qstat[k];
+    const b=byP[st.p]||(byP[st.p]={ok:0,n:0,c:st.c,p:st.p});
+    b.ok+=st.ok; b.n+=st.n;}
+  const arr=Object.values(byP).filter(b=>b.n>=1 && b.ok/b.n<0.7);
+  arr.forEach(b=>b.r=b.ok/b.n);
+  arr.sort((a,b)=>a.r-b.r||b.n-a.n);
+  return arr.slice(0,n);
+}
+function recStat(q,correct){
+  const k=q.p+"_"+q.q.slice(0,12);
+  const st=S.qstat[k]||{n:0,ok:0,c:q.c,t:q.q.slice(0,40),p:q.p};
+  st.n++; if(correct)st.ok++; st.c=q.c; st.p=q.p; st.t=q.q.slice(0,40);
+  S.qstat[k]=st;
+}
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]];}return a;};
+function pick(cat,n){return shuffle(QBANK.filter(q=>q.c===cat)).slice(0,n);}
+function buildMock(){
+  let out=[];
+  CATS.forEach(c=>out=out.concat(pick(c,DIST[c])));
+  return out;
+}
+const fmt=s=>{s=Math.max(0,Math.round(s));
+  const h=(s/3600|0),m=((s%3600)/60|0),x=s%60;
+  return (h?h+":":"")+String(m).padStart(h?2:1,"0")+":"+String(x).padStart(2,"0");};
+
+/* ================= ホーム ================= */
+function home(){
+  markToday();
+  const dl=daysLeft(), {pt,total}=expectedScore(), pp=passProb(), stk=streak();
+  const weak=weakList(3);
+  let ansTotal=0;for(const k in S.qstat)ansTotal+=S.qstat[k].n;
+  const tag = pt>=PASS ? ["t-ok","合格圏"] : pt>=PASS-4 ? ["t-mid","あと少し"] : ["t-ng","要強化"];
+  const last7=[...Array(7)].map((_,i)=>{const d=new Date();d.setDate(d.getDate()-(6-i));
+    return S.days.includes(d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"));});
+
+  app.innerHTML=`
+  <div style="display:flex;align-items:center;margin-bottom:13px">
+    <div><h1>宅建 演習</h1><div class="sub">本試験と同じ形式・同じ分野配分</div></div>
+    <a class="link" style="margin-left:auto" href="../">単語帳 →</a>
+  </div>
+
+  <div class="card cd">
+    <div><span class="d">${dl>0?dl:0}</span><span class="u">日</span></div>
+    <div class="date">試験日 ${S.examDate.replace(/-/g,"/")}　<button id="chdate">変更</button></div>
+    <div class="wk">${last7.map(o=>`<i class="${o?"on":""}"></i>`).join("")}</div>
+    <div class="st">${stk>0?`🔥 ${stk}日連続で学習中`:"今日から再開しましょう"}</div>
+  </div>
+
+  ${S.paused?`<button class="btn warnb" id="resume" style="margin-bottom:11px">▶︎ 中断した模試を再開する
+    <small>${S.paused.list.length}問中 ${S.paused.ans.filter(a=>a!=null).length}問回答ずみ ／ 残り ${fmt(S.paused.left)}</small></button>`:""}
+
+  <div class="card">
+    <div class="lbl">予想得点（本試験50問に換算）</div>
+    <div class="score">
+      <span class="big">${ansTotal?pt:"—"}</span><span class="of">/ ${total}点</span>
+      ${ansTotal?`<span class="tag ${tag[0]}">${tag[1]}</span>`:`<span class="tag t-mid">未計測</span>`}
+    </div>
+    <div class="gauge"><i style="width:${ansTotal?Math.min(100,pt/50*100):0}%"></i><span class="line" style="left:${PASS/50*100}%"></span></div>
+    <div class="gnote"><span>0</span><span>合格ライン ${PASS}点前後</span><span>50</span></div>
+    <div style="margin-top:13px;font-size:12.5px;font-weight:800;color:var(--dim)">
+      合格可能性の目安 <b style="color:${!ansTotal?'#8c97ab':pp>=60?'#5fe0ac':pp>=40?'#ffc27a':'#ff9098'};font-size:15px">${ansTotal?pp+"%":"—"}</b>
+      <span style="font-weight:700;font-size:11px">（回答 ${ansTotal}問ぶん）</span>
+    </div>
+    ${ansTotal<40?`<div style="margin-top:8px;font-size:11px;color:var(--dim);font-weight:700;line-height:1.6">
+      ⚠️ まだデータが少ないため精度は低めです。<b style="color:#9db8ff">80問</b>くらい解くと精度が上がります。</div>`:""}
+  </div>
+
+  <div class="card">
+    <div class="lbl">分野別の正答率</div>
+    ${CATS.map(c=>{const {rate,n,ok}=catRate(c);
+      return `<div class="fld"><div class="fh"><span>${c}</span>
+        <span class="n">${n?Math.round(rate*100)+"%":"—"} <span style="opacity:.6">(${ok}/${n})</span></span></div>
+        <div class="bar"><i class="c-${c}" style="width:${n?rate*100:0}%"></i></div></div>`;}).join("")}
+  </div>
+
+  ${weak.length?`<div class="card">
+    <div class="lbl">苦手な論点 — 解説へジャンプ</div>
+    ${weak.map(w=>`<a class="weak" href="../?p=${w.p}"><span class="p">P${w.p}</span>
+      <span class="t">${(typeof PTOPIC!=="undefined"&&PTOPIC[w.p])||w.c}</span>
+      <span class="r">${Math.round(w.r*100)}%<span style="color:var(--dim);font-weight:700"> (${w.ok}/${w.n})</span></span></a>`).join("")}
+    <div style="margin-top:10px;font-size:11px;color:var(--dim);font-weight:700">
+      タップすると単語帳の該当ページが開きます。</div>
+  </div>`:""}
+
+  <div class="btns">
+    <button class="btn pri" id="mock">📝 模試を受ける（50問・2時間）
+      <small>本試験と同じ配分。途中で中断できます</small></button>
+    <div class="row2">
+      <button class="btn" id="drill">📚 分野別演習<small>1問ずつ即採点</small></button>
+      <button class="btn" id="review">🔁 間違い復習<small>${Object.values(S.qstat).filter(s=>s.ok/s.n<1).length}問</small></button>
+    </div>
+    <a class="btn" href="../sheets/">📄 早見表を見る<small>数字・公式・ゴロ 12枚</small></a>
+  </div>
+
+  ${S.hist.length?`<div class="card" style="margin-top:11px">
+    <div class="lbl">これまでの記録</div>
+    ${S.hist.slice(-5).reverse().map(h=>`<div style="display:flex;align-items:center;gap:10px;padding:7px 0;font-size:12.5px;font-weight:700">
+      <span style="color:var(--dim);font-size:11px">${h.d.slice(5).replace("-","/")}</span>
+      <span>${h.mode}</span>
+      <b style="margin-left:auto;font-size:14px">${h.score}<span style="color:var(--dim);font-size:11px">/${h.total}</span></b>
+    </div>`).join("")}
+  </div>`:""}
+
+  <div class="foot">問題はすべてオリジナルです（本試験と同形式）<br>
+  解説のP番号は単語帳・早見表と共通です</div>`;
+
+  $("chdate").onclick=()=>{
+    app.insertAdjacentHTML("beforeend",`<div class="modal" id="md"><div class="box">
+      <h3>試験日を設定</h3><p>宅建試験は例年10月の第3日曜日です。正式な日程が出たら合わせてください。</p>
+      <input type="date" id="dv" value="${S.examDate}">
+      <div class="row2"><button class="btn" id="dc">やめる</button><button class="btn pri" id="dok">保存</button></div>
+    </div></div>`);
+    $("dc").onclick=()=>$("md").remove();
+    $("dok").onclick=()=>{if($("dv").value){S.examDate=$("dv").value;save();}$("md").remove();home();};
+  };
+  $("mock").onclick=()=>startMock();
+  $("drill").onclick=()=>drillMenu();
+  $("review").onclick=()=>startReview();
+  if($("resume"))$("resume").onclick=()=>resumeMock();
+}
+
+/* ================= 模試 ================= */
+let E=null, tick=null;
+function startMock(){
+  E={mode:"模試",list:buildMock(),ans:[],flag:[],i:0,left:120*60,started:Date.now(),limit:true};
+  E.ans=E.list.map(()=>null); E.flag=E.list.map(()=>false);
+  runExam();
+}
+function resumeMock(){
+  const p=S.paused;
+  E={mode:"模試",list:p.list,ans:p.ans,flag:p.flag,i:p.i,left:p.left,started:Date.now(),limit:true};
+  S.paused=null;save();
+  runExam();
+}
+function pauseMock(){
+  clearInterval(tick);
+  S.paused={list:E.list,ans:E.ans,flag:E.flag,i:E.i,left:E.left};
+  save(); E=null; home();
+}
+function runExam(){
+  clearInterval(tick);
+  tick=setInterval(()=>{
+    if(!E||!E.limit)return;
+    E.left--;
+    const t=$("timer");
+    if(t){t.textContent=fmt(E.left);t.classList.toggle("low",E.left<600);}
+    const pace=$("pace"); if(pace)pace.innerHTML=paceText();
+    if(E.left<=0){clearInterval(tick);finish();}
+  },1000);
+  drawQ();
+}
+function paceText(){
+  const done=E.ans.filter(a=>a!=null).length;
+  const used=120*60-E.left;
+  const per=done?used/done:0;
+  const need=E.list.length-done;
+  const est=per*need;
+  const ok=est<=E.left;
+  return `1問 <b>${done?fmt(per):"—"}</b>／残り${need}問 見込み <b class="${ok?"":"late"}">${done?fmt(est):"—"}</b>`;
+}
+function drawQ(){
+  const q=E.list[E.i], n=E.list.length;
+  const done=E.ans.filter(a=>a!=null).length;
+  app.innerHTML=`
+  <div class="exhead"><div class="exrow">
+    <div>
+      ${E.limit?`<div class="timer" id="timer">${fmt(E.left)}</div>`:`<div class="timer">${E.i+1}/${n}</div>`}
+      ${E.limit?`<div class="tinfo" id="pace">${paceText()}</div>`:`<div class="tinfo">${E.mode}</div>`}
+    </div>
+    <div class="exbtn">
+      <button id="listb">一覧</button>
+      ${E.limit?`<button id="pauseb">中断</button>`:`<button id="quitb">やめる</button>`}
+    </div>
+  </div>
+  <div class="pbar"><i style="width:${done/n*100}%"></i></div></div>
+
+  <div class="qmeta"><span class="chip k-${q.c}">${q.c}</span>
+    <span class="qno">問 ${E.i+1} / ${n}</span>
+    <span class="qno" style="margin-left:auto">回答ずみ ${done}</span></div>
+  <div class="qtext">${q.q}</div>
+  <div id="opts">${q.o.map((o,k)=>`<button class="opt ${E.ans[E.i]===k?"sel":""}" data-k="${k}">
+    <span class="num">${k+1}</span><span>${o}</span></button>`).join("")}</div>
+  <div class="nav">
+    <button id="prev" ${E.i===0?"disabled":""}>←</button>
+    <button class="flagb ${E.flag[E.i]?"on":""}" id="flag">🚩</button>
+    <button class="pri" id="next">${E.i===n-1?"採点する":"次へ →"}</button>
+  </div>`;
+
+  [...document.querySelectorAll(".opt")].forEach(b=>b.onclick=()=>{
+    E.ans[E.i]=+b.dataset.k;
+    if(E.i<E.list.length-1){E.i++;drawQ();}else drawQ();
+  });
+  $("prev").onclick=()=>{if(E.i>0){E.i--;drawQ();}};
+  $("flag").onclick=()=>{E.flag[E.i]=!E.flag[E.i];drawQ();};
+  $("next").onclick=()=>{if(E.i<E.list.length-1){E.i++;drawQ();}else confirmFinish();};
+  $("listb").onclick=()=>drawList();
+  if($("pauseb"))$("pauseb").onclick=()=>pauseMock();
+  if($("quitb"))$("quitb").onclick=()=>{clearInterval(tick);E=null;home();};
+  scrollTo(0,0);
+}
+function drawList(){
+  const n=E.list.length;
+  app.innerHTML=`
+  <div style="display:flex;align-items:center;margin-bottom:14px">
+    <h1>解答状況</h1><button class="btn" style="width:auto;margin-left:auto;padding:9px 15px" id="back">戻る</button>
+  </div>
+  <div class="card"><div class="grid">
+    ${E.list.map((q,k)=>`<button class="g ${E.ans[k]!=null?"done":""} ${E.flag[k]?"flag":""} ${k===E.i?"cur":""}" data-k="${k}">${k+1}</button>`).join("")}
+  </div>
+  <div style="margin-top:13px;font-size:11.5px;color:var(--dim);font-weight:700;line-height:1.9">
+    青＝回答ずみ　／　右上の点＝🚩見直し<br>
+    未回答 <b style="color:#ff9098">${E.ans.filter(a=>a==null).length}問</b>　🚩 ${E.flag.filter(f=>f).length}問
+  </div></div>
+  <button class="btn pri" id="fin">採点する</button>`;
+  [...document.querySelectorAll(".g")].forEach(b=>b.onclick=()=>{E.i=+b.dataset.k;drawQ();});
+  $("back").onclick=()=>drawQ();
+  $("fin").onclick=()=>confirmFinish();
+}
+function confirmFinish(){
+  const un=E.ans.filter(a=>a==null).length;
+  app.insertAdjacentHTML("beforeend",`<div class="modal" id="md"><div class="box">
+    <h3>採点しますか？</h3>
+    <p>${un?`未回答が <b style="color:#ff9098">${un}問</b> あります。<br>`:""}採点すると解答と解説が表示されます。</p>
+    <div class="row2"><button class="btn" id="mc">戻る</button><button class="btn pri" id="mo">採点する</button></div>
+  </div></div>`);
+  $("mc").onclick=()=>$("md").remove();
+  $("mo").onclick=()=>{$("md").remove();finish();};
+}
+
+/* ================= 採点・結果 ================= */
+function finish(){
+  clearInterval(tick);
+  let score=0;
+  const byCat={};
+  E.list.forEach((q,k)=>{
+    const ok=E.ans[k]===q.a;
+    if(ok)score++;
+    recStat(q,ok);
+    byCat[q.c]=byCat[q.c]||{ok:0,n:0};
+    byCat[q.c].n++; if(ok)byCat[q.c].ok++;
+  });
+  const used=E.limit?120*60-E.left:Math.round((Date.now()-E.started)/1000);
+  S.hist.push({d:todayKey(),mode:E.mode,score,total:E.list.length,sec:used});
+  S.hist=S.hist.slice(-50);
+  markToday(); save();
+
+  const pct=Math.round(score/E.list.length*100);
+  const conv=Math.round(score/E.list.length*50);
+  const pass=E.list.length===50 ? score>=PASS : conv>=PASS;
+  app.innerHTML=`
+  <div class="card res">
+    <div class="pt">${score}<small> / ${E.list.length}</small></div>
+    <div class="msg" style="color:${pass?'#5fe0ac':'#ffc27a'}">${pass?"🎉 合格ライン到達":"あと"+Math.max(1,(E.list.length===50?PASS-score:Math.ceil((PASS-conv)*E.list.length/50)))+"問で合格ライン"}</div>
+    <div class="sub2">正答率 ${pct}％${E.list.length!==50?`　／　50問換算 ${conv}点`:""}</div>
+    <div class="stat">
+      <div><b>${fmt(used)}</b><span>所要時間</span></div>
+      <div><b>${fmt(used/E.list.length)}</b><span>1問あたり</span></div>
+      <div><b>${E.list.length-score}</b><span>間違い</span></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="lbl">分野別</div>
+    ${Object.keys(byCat).map(c=>{const b=byCat[c],r=b.ok/b.n;
+      return `<div class="fld"><div class="fh"><span>${c}</span><span class="n">${b.ok}/${b.n}　${Math.round(r*100)}%</span></div>
+      <div class="bar"><i class="c-${c}" style="width:${r*100}%"></i></div></div>`;}).join("")}
+  </div>
+  <div class="card">
+    <div class="lbl">間違えた問題の解説</div>
+    ${E.list.map((q,k)=>{
+      if(E.ans[k]===q.a)return "";
+      return `<div class="rq"><span class="chip k-${q.c}">${q.c}</span>
+        <div class="t">問${k+1}　${q.q}</div>
+        <div class="a"><span class="y">あなた：${E.ans[k]!=null?(E.ans[k]+1)+"　"+q.o[E.ans[k]]:"未回答"}</span><br>
+        <span class="c">正解：${q.a+1}　${q.o[q.a]}</span></div>
+        <div class="e">${q.e}　<a class="link" href="../?p=${q.p}">P${q.p} の解説へ →</a></div></div>`;
+    }).join("")||`<div style="font-size:13px;font-weight:800;color:#5fe0ac">全問正解です 🎉</div>`}
+  </div>
+  <div class="btns">
+    <button class="btn pri" id="again">もう一度おなじモードで</button>
+    <button class="btn" id="hm">ホームへ戻る</button>
+  </div>`;
+  const mode=E.mode, cat=E.cat;
+  $("again").onclick=()=>{ if(mode==="模試")startMock(); else if(mode.startsWith("復習"))startReview(); else startDrill(cat); };
+  $("hm").onclick=()=>{E=null;home();};
+  scrollTo(0,0);
+}
+
+/* ================= 分野別演習（即採点） ================= */
+function drillMenu(){
+  app.innerHTML=`
+  <div style="display:flex;align-items:center;margin-bottom:14px">
+    <h1>分野別演習</h1><button class="btn" style="width:auto;margin-left:auto;padding:9px 15px" id="back">戻る</button>
+  </div>
+  <div class="sub" style="margin-bottom:13px">1問ごとに正誤と解説が出ます。時間制限なし。</div>
+  <div class="btns">
+    ${CATS.map(c=>{const n=QBANK.filter(q=>q.c===c).length;const {rate,n:an}=catRate(c);
+      return `<button class="btn" data-c="${c}">${c}<small>${n}問　${an?"正答率 "+Math.round(rate*100)+"%":"未着手"}</small></button>`;}).join("")}
+    <button class="btn pri" data-c="ALL">全分野からランダム10問<small>腕試しに</small></button>
+  </div>`;
+  $("back").onclick=home;
+  [...document.querySelectorAll("[data-c]")].forEach(b=>b.onclick=()=>startDrill(b.dataset.c));
+}
+function startDrill(c){
+  const list = c==="ALL" ? shuffle(QBANK).slice(0,10) : shuffle(QBANK.filter(q=>q.c===c));
+  E={mode:c==="ALL"?"ランダム10問":c+" 演習",cat:c,list,ans:list.map(()=>null),flag:list.map(()=>false),
+     i:0,left:0,started:Date.now(),limit:false,instant:true};
+  drawInstant();
+}
+function startReview(){
+  const wrong=[];
+  for(const k in S.qstat){const st=S.qstat[k];if(st.ok/st.n<1)wrong.push(st.p+"|"+st.t);}
+  const list=shuffle(QBANK.filter(q=>wrong.some(w=>w.startsWith(q.p+"|")&&q.q.slice(0,40)===w.split("|")[1])));
+  if(!list.length){
+    app.innerHTML=`<div class="card" style="text-align:center;padding:32px 18px">
+      <div style="font-size:34px">🎯</div>
+      <div style="font-size:15px;font-weight:900;margin-top:10px">復習する問題がありません</div>
+      <div class="sub" style="margin-top:8px">まず模試か分野別演習を解いてみてください</div></div>
+      <button class="btn pri" id="hm" style="margin-top:11px">ホームへ</button>`;
+    $("hm").onclick=home; return;
+  }
+  E={mode:"復習（間違えた問題）",cat:null,list,ans:list.map(()=>null),flag:list.map(()=>false),
+     i:0,left:0,started:Date.now(),limit:false,instant:true};
+  drawInstant();
+}
+function drawInstant(){
+  const q=E.list[E.i], n=E.list.length, picked=E.ans[E.i];
+  const shown=picked!=null;
+  app.innerHTML=`
+  <div class="exhead"><div class="exrow">
+    <div><div class="timer">${E.i+1}<span style="font-size:14px;color:var(--dim)"> / ${n}</span></div>
+    <div class="tinfo">${E.mode}</div></div>
+    <div class="exbtn"><button id="quitb">やめる</button></div>
+  </div><div class="pbar"><i style="width:${(E.i+(shown?1:0))/n*100}%"></i></div></div>
+
+  <div class="qmeta"><span class="chip k-${q.c}">${q.c}</span><span class="qno">問 ${E.i+1}</span></div>
+  <div class="qtext">${q.q}</div>
+  <div id="opts">${q.o.map((o,k)=>{
+    let cls="";
+    if(shown){ if(k===q.a)cls="ok"; else if(k===picked)cls="ng"; }
+    return `<button class="opt ${cls}" data-k="${k}" ${shown?"disabled":""}>
+      <span class="num">${k+1}</span><span>${o}</span></button>`;}).join("")}</div>
+  ${shown?`<div class="exp">
+    <div class="h ${picked===q.a?"ok":"ng"}">${picked===q.a?"◯ 正解":"✕ 不正解　正解は "+(q.a+1)+"番"}</div>
+    ${q.e}　<a href="../?p=${q.p}">P${q.p} の解説へ →</a></div>
+    <div class="nav"><button class="pri" id="next">${E.i===n-1?"結果を見る":"次の問題 →"}</button></div>`:""}`;
+
+  [...document.querySelectorAll(".opt")].forEach(b=>b.onclick=()=>{
+    if(E.ans[E.i]!=null)return;
+    E.ans[E.i]=+b.dataset.k;
+    drawInstant();
+  });
+  if($("next"))$("next").onclick=()=>{if(E.i<n-1){E.i++;drawInstant();scrollTo(0,0);}else finish();};
+  $("quitb").onclick=()=>{
+    if(E.ans.some(a=>a!=null)){finish();}else{E=null;home();}
+  };
+}
+
+/* ================= 起動 ================= */
+addEventListener("beforeunload",e=>{
+  if(E&&E.limit&&E.ans.some(a=>a!=null)){
+    S.paused={list:E.list,ans:E.ans,flag:E.flag,i:E.i,left:E.left};save();
+  }
+});
+home();
+</script>
+</body>
+</html>
