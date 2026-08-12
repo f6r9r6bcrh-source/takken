@@ -231,6 +231,11 @@
     <p class="vinfo" id="vinfo">読み込み中…</p>
   </div>
   <div class="fld">
+    <label>並び順</label>
+    <label class="chk"><input type="checkbox" id="ordsw" checked> 分野ごとにまとめる</label>
+    <p class="vinfo" id="ordinfo" style="margin:7px 2px 0"></p>
+  </div>
+  <div class="fld">
     <label>カードの表示</label>
     <label class="chk"><input type="checkbox" id="exsw" checked> 表に「よく出る出題例」を出す</label>
   </div>
@@ -930,10 +935,16 @@ CATS.forEach(c=>{
   $("chips").appendChild(b);
 });
 
+/* 追加分（P52〜）を末尾に足しているため、番号順に流すと分野が2周してしまう。
+   既定では分野ごとにまとめて、業法→権利→法令→税 の順で流れるようにする。 */
+const CATORDER={"業法":0,"権利":1,"法令":2,"税他":3};
+let orderMode=localStorage.getItem("takken_order")||"cat";   // "cat"＝分野順 / "num"＝番号順
+
 function build(){
   deck = cat==="すべて" ? [...DATA]
        : cat==="🆕新規" ? DATA.filter(d=>d.nw)
        : DATA.filter(d=>d.c===cat);
+  if(orderMode==="cat") deck.sort((a,b)=>CATORDER[a.c]-CATORDER[b.c]||a.p-b.p);
   i=0; render();
 }
 function render(){
@@ -1255,6 +1266,22 @@ $("dlbtn").onclick=async()=>{
   b.textContent = failed ? "⚠️ "+failed+"件おちました（もう一度押してください）"
                          : "✅ 完了　圏外でも聞けます";
   b.disabled=false;
+};
+
+/* 並び順の切り替え（端末に保存） */
+function applyOrder(cat0){
+  $("ordsw").checked = orderMode==="cat";
+  $("ordinfo").innerHTML = orderMode==="cat"
+    ? "業法（P1〜21・52〜54）→ 権利 → 法令 → 税　の順に流れます。<br>追加分のP52〜73も、それぞれの分野の中に入ります。"
+    : "P1 → P73 の番号順に流れます。<br>追加分がうしろに固まるため、<b>分野が2周します</b>。";
+}
+applyOrder();
+$("ordsw").onchange=e=>{
+  orderMode=e.target.checked?"cat":"num";
+  localStorage.setItem("takken_order",orderMode);
+  const keep=deck[i];                 // いま見ているカードは保持する
+  stop(); applyOrder(); build();
+  if(keep){const k=deck.indexOf(keep); if(k>=0){i=k;render();}}
 };
 
 /* 出題例の表示・非表示（端末に保存） */

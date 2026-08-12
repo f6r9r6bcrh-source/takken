@@ -267,7 +267,14 @@ function recStat(q,correct){
   S.qstat[k]=st;
 }
 const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]];}return a;};
-function pick(cat,n){return shuffle(QBANK.filter(q=>q.c===cat)).slice(0,n);}
+
+/* 選択肢の並びは出題ごとにシャッフルする。
+   （正解が特定の番号に偏るのを防ぎ、２回目以降も番号で覚えられないようにするため） */
+function shuffleOpts(q){
+  const idx=shuffle(q.o.map((_,k)=>k));
+  return Object.assign({},q,{o:idx.map(k=>q.o[k]),a:idx.indexOf(q.a)});
+}
+function pick(cat,n){return shuffle(QBANK.filter(q=>q.c===cat)).slice(0,n).map(shuffleOpts);}
 function buildMock(){
   let out=[];
   CATS.forEach(c=>out=out.concat(pick(c,DIST[c])));
@@ -555,7 +562,7 @@ function drillMenu(){
   [...document.querySelectorAll("[data-c]")].forEach(b=>b.onclick=()=>startDrill(b.dataset.c));
 }
 function startDrill(c){
-  const list = c==="ALL" ? shuffle(QBANK).slice(0,10) : shuffle(QBANK.filter(q=>q.c===c));
+  const list = (c==="ALL" ? shuffle(QBANK).slice(0,10) : shuffle(QBANK.filter(q=>q.c===c))).map(shuffleOpts);
   E={mode:c==="ALL"?"ランダム10問":c+" 演習",cat:c,list,ans:list.map(()=>null),flag:list.map(()=>false),
      i:0,left:0,started:Date.now(),limit:false,instant:true};
   drawInstant();
@@ -563,7 +570,7 @@ function startDrill(c){
 function startReview(){
   const wrong=[];
   for(const k in S.qstat){const st=S.qstat[k];if(st.ok/st.n<1)wrong.push(st.p+"|"+st.t);}
-  const list=shuffle(QBANK.filter(q=>wrong.some(w=>w.startsWith(q.p+"|")&&q.q.slice(0,40)===w.split("|")[1])));
+  const list=shuffle(QBANK.filter(q=>wrong.some(w=>w.startsWith(q.p+"|")&&q.q.slice(0,40)===w.split("|")[1]))).map(shuffleOpts);
   if(!list.length){
     app.innerHTML=`<div class="card" style="text-align:center;padding:32px 18px">
       <div style="font-size:34px">🎯</div>
