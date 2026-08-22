@@ -54,6 +54,10 @@
   .chip.on[data-c="法令"]{background:var(--hou);border-color:var(--hou);color:#150a2b}
   .chip.on[data-c="税他"]{background:var(--zei);border-color:var(--zei);color:#2b0f19}
   .chip.on[data-c="🆕新規"]{background:var(--new);border-color:var(--new);color:#03211e}
+  /* 上段＝種類タブ（ゴロ／まとめ／早見表）は少し小さく、選択時は青系で分野タブと区別 */
+  #kinds{margin-top:8px}
+  #kinds .chip{padding:6px 13px;font-size:12.5px}
+  #kinds .chip.on{background:var(--accent);border-color:var(--accent);color:#fff}
 
   /* ---------- card ---------- */
   .stage{flex:1;display:flex;align-items:center;justify-content:center;
@@ -179,6 +183,7 @@
       <button id="jbtn">移動</button>
     </div>
   </div>
+  <div class="chips" id="kinds"></div>
   <div class="chips" id="chips"></div>
 </header>
 
@@ -997,19 +1002,60 @@ const EX={
 };
 
 /* ========== 状態 ========== */
-const CATS=["すべて","業法","権利","法令","税他","🆕新規"];
-let cat="すべて", deck=[], i=0, rate=1, loop=null;
+/* 種類（上段タブ）：ゴロ＝P1〜73／まとめ＝頻出論点まとめ13枚／早見表＝早見表12枚
+   タイトルから自動判定するので、カードを足しても勝手に振り分けられる */
+DATA.forEach(d=>{
+  d.k = /^頻出論点まとめ/.test(d.t) ? "まとめ"
+      : /^早見表/.test(d.t)         ? "早見表"
+      : "ゴロ";
+});
+
+/* ラベルは絵文字つき、中身の判定には k（絵文字なし）を使う */
+const KINDS=[{k:"すべて",label:"すべて"},{k:"ゴロ",label:"🎯 ゴロ"},
+             {k:"まとめ",label:"📕 まとめ"},{k:"早見表",label:"📊 早見表"}];
+const CATS =["すべて","業法","権利","法令","税他","🆕新規"];
+let kind="すべて", cat="すべて", deck=[], i=0, rate=1, loop=null;
 const $=id=>document.getElementById(id), card=$("card");
 
 $("jin").max = DATA.length;
 $("jin").placeholder = "P";
 
+/* 上段：種類タブ */
+KINDS.forEach(o=>{
+  const b=document.createElement("button");
+  b.className="chip"+(o.k===kind?" on":""); b.textContent=o.label; b.dataset.c=o.k;
+  b.onclick=()=>{stop();kind=o.k;
+    [...$("kinds").children].forEach(x=>x.classList.toggle("on",x.dataset.c===o.k));
+    localStorage.setItem("takken_kind",o.k); build();};
+  $("kinds").appendChild(b);
+});
+/* 下段：分野タブ */
 CATS.forEach(c=>{
   const b=document.createElement("button");
   b.className="chip"+(c===cat?" on":""); b.textContent=c; b.dataset.c=c;
-  b.onclick=()=>{stop();cat=c;[...$("chips").children].forEach(x=>x.classList.toggle("on",x.dataset.c===c));build();};
+  b.onclick=()=>{stop();cat=c;
+    [...$("chips").children].forEach(x=>x.classList.toggle("on",x.dataset.c===c));
+    localStorage.setItem("takken_cat",c); build();};
   $("chips").appendChild(b);
 });
+
+/* 前回の選択を復元 */
+{
+  const sk=localStorage.getItem("takken_kind"), sc=localStorage.getItem("takken_cat");
+  if(KINDS.some(o=>o.k===sk)) kind=sk;
+  if(CATS.includes(sc))  cat=sc;
+  [...$("kinds").children].forEach(x=>x.classList.toggle("on",x.dataset.c===kind));
+  [...$("chips").children].forEach(x=>x.classList.toggle("on",x.dataset.c===cat));
+}
+
+/* 種類・分野の両方で絞り込む */
+function filtered(){
+  let a=[...DATA];
+  if(kind!=="すべて") a=a.filter(d=>d.k===kind);
+  if(cat==="🆕新規")      a=a.filter(d=>d.nw);
+  else if(cat!=="すべて") a=a.filter(d=>d.c===cat);
+  return a;
+}
 
 /* 追加分（P52〜）を末尾に足しているため、番号順に流すと分野が2周してしまう。
    既定では分野ごとにまとめて、業法→権利→法令→税 の順で流れるようにする。 */
@@ -1017,9 +1063,14 @@ const CATORDER={"業法":0,"権利":1,"法令":2,"税他":3};
 let orderMode=localStorage.getItem("takken_order")||"cat";   // "cat"＝分野順 / "num"＝番号順
 
 function build(){
-  deck = cat==="すべて" ? [...DATA]
-       : cat==="🆕新規" ? DATA.filter(d=>d.nw)
-       : DATA.filter(d=>d.c===cat);
+  deck = filtered();
+  /* 組み合わせで0件になったら分野をすべてに戻す（空デッキで固まらないように） */
+  if(!deck.length){
+    cat="すべて";
+    [...$("chips").children].forEach(x=>x.classList.toggle("on",x.dataset.c==="すべて"));
+    localStorage.setItem("takken_cat",cat);
+    deck = filtered();
+  }
   if(orderMode==="cat") deck.sort((a,b)=>CATORDER[a.c]-CATORDER[b.c]||a.p-b.p);
   i=0; render();
 }
@@ -1377,11 +1428,21 @@ $("cfg").onclick=()=>{loadVoices();openCfg(true);};
 $("close").onclick=()=>openCfg(false);
 $("scrim").onclick=()=>openCfg(false);
 
+/* 絞り込みを解除して全カードに戻す（P番号ジャンプ用） */
+function resetTabs(){
+  kind="すべて"; cat="すべて";
+  [...$("kinds").children].forEach(x=>x.classList.toggle("on",x.dataset.c==="すべて"));
+  [...$("chips").children].forEach(x=>x.classList.toggle("on",x.dataset.c==="すべて"));
+  localStorage.setItem("takken_kind",kind); localStorage.setItem("takken_cat",cat);
+  deck=filtered();
+  if(orderMode==="cat") deck.sort((a,b)=>CATORDER[a.c]-CATORDER[b.c]||a.p-b.p);
+}
+
 function jump(){
   const n=+$("jin").value; if(!n)return;
   const d=DATA.find(x=>x.p===n); if(!d)return;
   stop();
-  if(!deck.includes(d)){cat="すべて";[...$("chips").children].forEach(x=>x.classList.toggle("on",x.dataset.c==="すべて"));deck=[...DATA];}
+  if(!deck.includes(d)){resetTabs();}
   i=deck.indexOf(d); render(); $("jin").blur();
 }
 $("jbtn").onclick=jump;
@@ -1409,10 +1470,7 @@ build();
   const n=+new URLSearchParams(location.search).get("p");
   const d=n?DATA.find(x=>x.p===n):null;
   if(d){
-    if(!deck.includes(d)){
-      cat="すべて"; deck=[...DATA];
-      [...$("chips").children].forEach(x=>x.classList.toggle("on",x.dataset.c==="すべて"));
-    }
+    if(!deck.includes(d)) resetTabs();
     i=deck.indexOf(d); render();
   }
 }
