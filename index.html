@@ -25,28 +25,28 @@
     color:#e8ebf2;
     font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic UI","Noto Sans JP",sans-serif;
     display:flex;flex-direction:column;
-    padding:var(--safeT) 0 var(--safeB);
+    padding:var(--safeT) 0 max(2px,calc(var(--safeB) - 12px));
     overflow:hidden;overscroll-behavior:none;
     -webkit-text-size-adjust:100%;
   }
 
   /* ---------- header ---------- */
-  header{padding:10px 14px 6px;flex:none}
-  .top{display:flex;align-items:center;justify-content:space-between;gap:10px}
-  .title{font-size:15px;font-weight:800;letter-spacing:.02em;opacity:.92;white-space:nowrap}
-  .jump{display:flex;gap:6px;align-items:center;flex:none}
-  .jump input{width:62px;height:38px;border-radius:11px;border:1px solid rgba(255,255,255,.16);
+  header{padding:2px 12px 4px;flex:none}
+  .row1{display:flex;align-items:center;gap:8px}
+  .row1>.chips{flex:1;min-width:0;margin-top:0}
+  .jump{display:flex;gap:5px;align-items:center;flex:none}
+  .jump input{width:42px;height:34px;border-radius:10px;border:1px solid rgba(255,255,255,.16);
     background:rgba(255,255,255,.07);color:#fff;text-align:center;
     font-size:16px;font-family:inherit;font-weight:800}
-  .jump button{height:38px;padding:0 13px;border-radius:11px;border:1px solid rgba(255,255,255,.16);
+  .jump button{height:34px;padding:0 8px;border-radius:10px;border:1px solid rgba(255,255,255,.16);
     background:rgba(255,255,255,.07);color:#dfe4ee;font-size:13px;font-weight:800;
     cursor:pointer;font-family:inherit;white-space:nowrap}
 
-  .chips{display:flex;gap:7px;margin-top:9px;flex-wrap:nowrap;overflow-x:auto;
+  .chips{display:flex;gap:7px;margin-top:7px;flex-wrap:nowrap;overflow-x:auto;
     scrollbar-width:none;-webkit-overflow-scrolling:touch;padding-bottom:2px}
   .chips::-webkit-scrollbar{display:none}
   .chip{flex:none;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.05);color:#c9d0de;
-    border-radius:999px;padding:8px 15px;font-size:13px;font-weight:700;cursor:pointer;
+    border-radius:999px;padding:8px 13px;font-size:13px;font-weight:700;cursor:pointer;
     font-family:inherit;transition:.15s;white-space:nowrap}
   .chip.on{background:#fff;color:var(--ink);border-color:#fff}
   .chip.on[data-c="業法"]{background:var(--gyo);border-color:var(--gyo);color:#231202}
@@ -55,12 +55,12 @@
   .chip.on[data-c="税他"]{background:var(--zei);border-color:var(--zei);color:#2b0f19}
   /* 上段＝種類タブ（ゴロ／まとめ／早見表）は少し小さく、選択時は青系で分野タブと区別 */
   #kinds{margin-top:8px}
-  #kinds .chip{padding:6px 13px;font-size:12.5px}
+  #kinds .chip{padding:6px 12px;font-size:12.5px}
   #kinds .chip.on{background:var(--accent);border-color:var(--accent);color:#fff}
 
   /* ---------- card ---------- */
   .stage{flex:1;display:flex;align-items:center;justify-content:center;
-    padding:6px 14px;min-height:0;perspective:1600px}
+    padding:4px 12px;min-height:0;perspective:1600px}
   .card{width:100%;max-width:540px;height:100%;position:relative;
     transform-style:preserve-3d;transition:transform .5s cubic-bezier(.4,.15,.2,1);cursor:pointer}
   .card.flip{transform:rotateY(180deg)}
@@ -108,8 +108,8 @@
   .note b{color:#fff}
 
   /* ---------- footer ---------- */
-  footer{flex:none;padding:8px 14px 12px}
-  .bar{height:3px;background:rgba(255,255,255,.1);border-radius:9px;overflow:hidden;margin-bottom:10px}
+  footer{flex:none;padding:4px 12px 2px}
+  .bar{height:3px;background:rgba(255,255,255,.1);border-radius:9px;overflow:hidden;margin-bottom:8px}
   .bar i{display:block;height:100%;background:var(--accent);border-radius:9px;transition:width .3s}
   .nav{display:flex;align-items:center;gap:8px}
   button.nv{flex:1;height:54px;border-radius:15px;border:1px solid rgba(255,255,255,.13);
@@ -120,12 +120,12 @@
   button.nv.spk{flex:.85;font-size:21px}
   button.nv.spk.on{background:#e8434f;border-color:#e8434f;color:#fff}
   .count{font-variant-numeric:tabular-nums;font-size:12px;color:#9aa4b8;min-width:60px;text-align:center;font-weight:800}
-  .tools{display:grid;grid-template-columns:1fr 1fr auto auto;gap:7px;margin-top:8px}
+  .tools{display:grid;grid-template-columns:1fr 1fr auto auto auto;gap:6px;margin-top:7px}
   .tools button{height:42px;border-radius:12px;border:1px solid rgba(255,255,255,.1);
     background:rgba(255,255,255,.04);color:#9aa4b8;font-size:12.5px;cursor:pointer;
     font-family:inherit;font-weight:800;padding:0 10px}
   .tools button.act{color:#fff;background:#e8434f;border-color:#e8434f}
-  .tools button.ico{width:46px;font-size:17px;padding:0}
+  .tools button.ico{width:40px;font-size:16px;padding:0}
 
   /* ---------- settings sheet ---------- */
   .scrim{position:fixed;inset:0;background:rgba(0,0,0,.5);opacity:0;pointer-events:none;transition:.2s;z-index:9}
@@ -161,7 +161,7 @@
     .face{padding:18px 16px}
     button.nv{height:48px}
     .tools button{height:38px}
-    header{padding:8px 14px 4px}
+    header{padding:2px 12px 3px}
   }
   @media(min-width:700px){
     .card{max-height:560px}
@@ -172,14 +172,13 @@
 <body>
 
 <header>
-  <div class="top">
-    <div class="title">🎴 宅建ゴロ単語帳</div>
+  <div class="row1">
+    <div class="chips" id="kinds"></div>
     <div class="jump">
       <input id="jin" type="number" inputmode="numeric" min="1" placeholder="P">
       <button id="jbtn">移動</button>
     </div>
   </div>
-  <div class="chips" id="kinds"></div>
   <div class="chips" id="chips"></div>
 </header>
 
@@ -251,6 +250,15 @@
     <label>ほかのページ</label>
     <a class="test" href="exam/" style="display:flex;align-items:center;justify-content:center;text-decoration:none;margin-bottom:8px">📝 演習・模試（50問・2時間）</a>
     <a class="test" id="sheetlink" href="sheets/" style="display:flex;align-items:center;justify-content:center;text-decoration:none">📄 早見表を見る（12枚）</a>
+  </div>
+
+  <div class="fld">
+    <label>画像をまとめて保存</label>
+    <button class="test" id="dlsheets" style="margin-bottom:8px">📊 早見表 12枚を保存</button>
+    <button class="test" id="dlnotes">📕 ノート用まとめ 13枚を保存</button>
+    <p class="vinfo" id="imginfo" style="margin:9px 2px 0">
+      iPhoneでは共有メニューが開くので<b>「画像を保存」</b>を選ぶと写真アプリに入ります。
+    </p>
   </div>
 
   <div class="fld">
@@ -438,7 +446,7 @@ const DATA = [
 {p:23,c:"権利",t:"頻出論点まとめ01｜制限行為能力者・意思表示・代理",g:"制限行為能力者、意思表示、代理の基本",r:[["未成年者","18歳未満。単独でできるのは、単に権利を得る行為、義務を免れる行為、処分を許された財産の処分、営業を許された行為だけ。取消権者は本人と法定代理人"],["成年被後見人","日用品の購入等の日常行為だけ単独でできる。後見人の同意があっても取消せる"],["被保佐人","日常行為と、13条列挙以外の行為は単独でできる。列挙とは、借財、保証、不動産等重要財産の売買、新築改築増築大修繕、訴訟、相続の承認放棄など"],["被補助人","本人の同意を得た審判で、同意を要すると定められた行為以外はすべて単独でできる"],["頻出3点","相手方は1か月以上の期間を定めて追認を催告できる。保護者への催告で確答なしは追認、被保佐人本人への催告で確答なしは取消し"],["詐術","詐術を用いたときは取消しできない。取消しは善意の第三者にも対抗できる。登記があっても関係ない"],["心裡留保","原則有効。相手方が悪意または有過失なら無効。善意の第三者には無効を主張できない"],["虚偽表示","無効。善意の第三者に対抗できない。無過失は不要、登記も不要"],["錯誤","取消し。重要な錯誤が要件。動機の錯誤は表示が必要。表意者に重過失があれば取消しできない。例外は相手方が悪意重過失、または共通錯誤の場合。善意無過失の第三者に対抗できない"],["詐欺","取消し。第三者の詐欺は相手方が悪意または有過失のときのみ取消しできる。善意無過失の第三者に対抗できない"],["強迫","取消し。第三者の強迫でも常に取消せる。善意無過失の第三者にも対抗できる。ここが詐欺との最大の違い"],["代理の要件","代理権、顕名、代理行為の3つ。顕名がなければ代理人自身の契約になる。相手方が知り得たなら代理として有効"],["代理人の資格","代理人は制限行為能力者でもよい。ただし意思能力は必要"],["自己契約・双方代理","無権代理とみなす。本人の許諾があるとき、または債務の履行はOK"],["復代理","本人を代理する。任意代理は本人の許諾かやむを得ない事由が必要。法定代理は自由に選任できる"],["無権代理の催告","相手方が本人に催告し、確答がなければ追認拒絶とみなす。追認は契約時にさかのぼって有効"],["責任追及","相手方の取消権は善意であればよい。無権代理人への責任追及は、相手方が善意無過失で、かつ代理人が制限行為能力者でないことが必要"],["表見代理","代理権授与の表示、権限外の行為、代理権消滅後のいずれかで、相手方が善意無過失なら本人に効果が帰属する"],["単独相続","無権代理人が本人を単独相続した場合、追認拒絶はできない"]],
  n:"権利関係のひっかけ3連。錯誤は無効ではなく取消し。強迫は善意の第三者に対抗できないのではなく、対抗できる。成年被後見人が後見人の同意を得て行った売買は取消せないのではなく、取消せる。同意には意味がない。"},
 
-{p:24,c:"権利",t:"頻出論点まとめ02｜物権変動・不動産登記・共有・時効",g:"物権変動と登記、取得時効、不動産登記法、共有",r:[["二重譲渡","先に登記した者が勝つ。単なる悪意者は第三者にあたるので、登記がなければ対抗できない"],["第三者にあたらない者","背信的悪意者、不法占拠者、無権利者、詐欺強迫で登記を妨げた者は、登記なしで対抗できる"],["取消し・解除の前","詐欺の場合は善意無過失の第三者に勝てない。強迫や解除前の場合は、登記があれば元の所有者が勝つ"],["取消し・解除の後","二重譲渡と同じで、登記の先後で決まる"],["時効完成の前後","完成前の第三者には、時効取得者が登記なしで勝つ。完成後の第三者には、登記の先後で決まる"],["相続人","相続分を超える部分は、登記がなければ第三者に対抗できない"],["取得時効","所有権は20年。占有開始時に善意無過失なら10年。所有の意思、平穏公然、継続が必要。賃借人の占有は他主占有なので時効取得できない"],["占有の承継","前主の占有期間を合算できる。効果は占有開始時にさかのぼる。援用が必要"],["消滅時効","権利を行使できると知った時から5年、行使できる時から10年。人身損害は20年"],["表題部","物理的現況。新築、滅失、地目地積変更は1か月以内の申請義務がある"],["権利部","甲区が所有権、乙区が所有権以外。原則共同申請。単独申請は相続、法人合併、判決、収用、所有権保存、登記名義人の氏名住所変更、仮登記など"],["相続登記","取得を知った日から3年以内の申請義務"],["仮登記","順位保全。本登記すると、順位は仮登記の順位になる"],["区分建物","表題登記は原始取得者である分譲業者が一括申請する。敷地権は分離処分できない"],["登記記録の閲覧","全部事項証明書は誰でも請求できる。登記識別情報は本人のみ"],["共有・保存行為","各共有者が単独でできる。修繕や不法占拠者への明渡請求など"],["共有・管理行為","持分の価格の過半数で決める。賃貸や軽微変更、管理者の選任など"],["共有・変更処分","共有者全員の同意が必要。売却、増改築、抵当権設定など"],["分割請求","各共有者は持分に応じて全部を使用できる。分割請求は自由。5年以内の不分割特約は可能で、更新も5年以内"],["対抗要件まとめ","不動産物権は登記、動産は引渡し、債権譲渡は確定日付ある証書、借家は建物の引渡し、借地は借地上の建物の登記"]],
+{p:24,c:"権利",t:"頻出論点まとめ02｜物権変動・不動産登記・共有・時効",g:"物権変動と登記、取得時効、不動産登記法、共有",r:[["二重譲渡","先に登記した者が勝つ。単なる悪意者は第三者にあたるので、登記がなければ対抗できない"],["第三者にあたらない者","背信的悪意者、不法占拠者、無権利者、詐欺強迫で登記を妨げた者は、登記なしで対抗できる"],["取消し・解除の前","詐欺と錯誤は、善意無過失の第三者に対抗できない。強迫は、登記がなくても第三者に勝てる。解除の前の第三者は、登記があれば善意悪意を問わず保護される"],["取消し・解除の後","二重譲渡と同じで、登記の先後で決まる"],["時効完成の前後","完成前の第三者には、時効取得者が登記なしで勝つ。完成後の第三者には、登記の先後で決まる"],["相続人","相続分を超える部分は、登記がなければ第三者に対抗できない"],["取得時効","所有権は20年。占有開始時に善意無過失なら10年。所有の意思、平穏公然、継続が必要。賃借人の占有は他主占有なので時効取得できない"],["占有の承継","前主の占有期間を合算できる。効果は占有開始時にさかのぼる。援用が必要"],["消滅時効","権利を行使できると知った時から5年、行使できる時から10年。人身損害は20年"],["表題部","物理的現況。新築、滅失、地目地積変更は1か月以内の申請義務がある"],["権利部","甲区が所有権、乙区が所有権以外。原則共同申請。単独申請は相続、法人合併、判決、収用、所有権保存、登記名義人の氏名住所変更、仮登記など"],["相続登記","取得を知った日から3年以内の申請義務"],["仮登記","順位保全。本登記すると、順位は仮登記の順位になる"],["区分建物","表題登記は原始取得者である分譲業者が一括申請する。敷地権は分離処分できない"],["登記記録の閲覧","全部事項証明書は誰でも請求できる。登記識別情報は本人のみ"],["共有・保存行為","各共有者が単独でできる。修繕や不法占拠者への明渡請求など"],["共有・管理行為","持分の価格の過半数で決める。賃貸や軽微変更、管理者の選任など"],["共有・変更処分","共有者全員の同意が必要。売却、増改築、抵当権設定など"],["分割請求","各共有者は持分に応じて全部を使用できる。分割請求は自由。5年以内の不分割特約は可能で、更新も5年以内"],["対抗要件まとめ","不動産物権は登記、動産は引渡し、債権譲渡は確定日付ある証書、借家は建物の引渡し、借地は借地上の建物の登記"]],
  n:"このページの急所は、登記が必要になる相手と不要になる相手の区別。背信的悪意者と単なる悪意者を混同しないこと。"},
 
 {p:25,c:"権利",t:"頻出論点まとめ03｜抵当権・債務不履行・契約不適合・保証",g:"抵当権、債務不履行と解除、契約不適合、保証",r:[["抵当権の性質","付従性、随伴性、不可分性、物上代位性。賃料や売却代金、保険金にも差押えで及ぶ"],["設定","債務者以外の物件にも設定できる、物上保証人という。登記が対抗要件で、順位は登記の先後で決まる"],["被担保債権の範囲","元本プラス、利息・損害金は最後の2年分。他に債権者がいる場合"],["効力の及ぶ範囲","付加一体物と従物、設定時に存在するもの。果実は債務不履行後に及ぶ"],["抵当地上の建物","抵当権は及ばない。一括競売ができる"],["法定地上権の要件","3つ。抵当権の設定時に建物が存在し、その時点で土地と建物が同一所有者で、抵当権の実行により別々の所有者になること"],["抵当建物の賃借人","6か月の明渡猶予がある。抵当権者全員の同意と登記があれば、賃借権に対抗力を持てる"],["代価弁済と消滅請求","代価弁済は抵当権者の請求で行う。消滅請求は第三取得者が申し出て2か月。どちらも債務者と保証人は請求できない"],["根抵当","極度額まで担保する。元本確定前は、被担保債権の範囲や債務者の変更に後順位者の承諾は不要"],["履行遅滞の時期","確定期限は期限到来時。不確定期限は期限到来後の催告か、到来を知った時の早い方。期限なしは催告時"],["損害賠償","債務者の帰責事由が必要。金銭債務は不可抗力でも免責されない。予定額の合意は可能で、裁判所は増減できる"],["催告解除","相当期間を定めて催告し、それでも不履行なら解除できる。軽微な不履行では解除できない"],["解除の要件","債務者の帰責事由は不要。ただし債権者に帰責事由があるときは解除できない"],["危険負担","引渡し後の当事者双方の責めによらない滅失や損傷は、買主負担。買主は代金を支払う義務があり、解除も追完請求もできない"],["契約不適合責任","種類・品質の不適合は、買主が不適合を知った時から1年以内に通知。数量・権利の不適合は通知不要"],["宅建業法40条","自ら売主で買主が一般人の場合、通知期間を引渡しの日から2年以上とする特約だけが有効"],["保証契約","書面が必要。主債務者の意思に反しても成立する。連帯保証には、催告の抗弁も検索の抗弁も分別の利益もない"],["連帯債務","絶対的効力は弁済、相殺、更改、混同。相対的効力は請求、免除、時効の完成で、他の債務者に影響しない"],["債権譲渡","譲渡制限特約があっても譲渡は有効。対抗要件は、債務者へは通知か承諾、第三者へは確定日付ある証書"],["解約手付","買主は手付放棄、売主は手付倍返しで、相手方が履行に着手するまで解除できる。宅建業法では、自ら売主は代金の2割以内、手付は必ず解約手付になる"]],
@@ -809,7 +817,7 @@ const DATA = [
  ["400万円超","代金かける<b>3パーセント、プラス6万円</b>"],
  ["売買の媒介","一方から速算額まで。双方合計で2倍"],["売買の代理","<b>速算額の2倍</b>まで"],
  ["貸借","双方合計で<b>借賃1ヶ月分</b>の1.1倍。居住用は原則折半"],
- ["低廉な空家等","<b>800万円以下</b>なら<b>33万円</b>まで。売主・買主どちらからも可"]],
+ ["低廉な空家等","<b>800万円以下</b>の売買なら<b>33万円</b>まで。<b>売主（交換の依頼者）からのみ</b>で、買主からは通常どおり"],["長期の空家等の貸借","1年超使われていない等なら、<b>貸主から借賃2.2か月分</b>まで"]],
  n:"速算法は<b>税抜代金</b>で計算。<b>土地は非課税</b>。特別の依頼による広告費は別途請求できる。"},
 
 {p:92,c:"業法",t:"宅建業の定義｜免許が要るか要らないか",g:"自ら貸借は、業じゃない",r:[
@@ -992,8 +1000,8 @@ DATA.forEach(d=>{
 });
 
 /* ラベルは絵文字つき、中身の判定には k（絵文字なし）を使う */
-const KINDS=[{k:"すべて",label:"すべて"},{k:"ゴロ",label:"🎯 ゴロ"},
-             {k:"まとめ",label:"📕 まとめ"},{k:"早見表",label:"📊 早見表"}];
+const KINDS=[{k:"すべて",label:"すべて"},{k:"ゴロ",label:"ゴロ"},
+             {k:"まとめ",label:"まとめ"},{k:"早見表",label:"早見表"}];
 const CATS =["すべて","業法","権利","法令","税他"];
 let kind="すべて", cat="すべて", deck=[], i=0, rate=1, loop=null;
 /* くり返し再生：選んだ範囲（全体/ゴロ/まとめ/早見表）の最後まで行ったら先頭へ戻る */
@@ -1406,6 +1414,57 @@ function applyEx(on){
 applyEx(localStorage.getItem(EXKEY)!=="0");
 $("exsw").onchange=e=>applyEx(e.target.checked);
 $("test").onclick=()=>{synth.cancel();say("ピー"+(deck[i]?deck[i].p:1)+"。"+clean(deck[i]?deck[i].g:"宅建ゴロ単語帳"),{r:.85,pitch:1.15});};
+
+/* ========== 画像をまとめて保存 ========== */
+const SHEET_IMGS=["01-業法の数字1-期間.png","02-業法の数字2-金額.png","03-法令の数字.png",
+ "04-税の数字.png","05-用途地域マトリクス.png","06-35条と37条.png","07-許可と届出.png",
+ "08-引っかけ対比1.png","09-引っかけ対比2.png","10-ゴロ一覧-業法.png","11-ゴロ一覧-権利.png",
+ "12-ゴロ一覧-法令税.png"];
+const NOTE_IMGS=Array.from({length:13},(_,k)=>"宅建まとめ_"+String(k+1).padStart(2,"0")+".png");
+
+async function saveImages(dir, names, label, btn){
+  const info=$("imginfo"), keep=info.innerHTML;
+  const btns=[$("dlsheets"),$("dlnotes")];
+  btns.forEach(b=>b.disabled=true);
+  btn.textContent="準備中…";
+  try{
+    const files=[];
+    for(let k=0;k<names.length;k++){
+      info.textContent=`${label} を読み込み中… ${k+1} / ${names.length}`;
+      const res=await fetch(dir+encodeURIComponent(names[k]),{cache:"force-cache"});
+      if(!res.ok) throw new Error(names[k]+" が見つかりません");
+      files.push(new File([await res.blob()], names[k], {type:"image/png"}));
+    }
+    /* iPhone：共有メニュー →「画像を保存」で写真アプリへ */
+    if(navigator.canShare && navigator.canShare({files})){
+      info.textContent="共有メニューから「画像を保存」を選んでください。";
+      await navigator.share({files, title:label});
+      info.textContent=`${label} を保存しました。`;
+    }else{
+      /* パソコン：1枚ずつダウンロード */
+      for(const f of files){
+        const url=URL.createObjectURL(f);
+        const a=document.createElement("a");
+        a.href=url; a.download=f.name;
+        document.body.appendChild(a); a.click(); a.remove();
+        setTimeout(()=>URL.revokeObjectURL(url),5000);
+        await wait(220);
+      }
+      info.textContent=`${label} をダウンロードしました（${files.length}枚）。`;
+    }
+  }catch(e){
+    info.textContent = (e&&e.name==="AbortError")
+      ? "保存をキャンセルしました。"
+      : "保存できませんでした："+((e&&e.message)||e);
+  }finally{
+    btns.forEach(b=>b.disabled=false);
+    $("dlsheets").textContent="📊 早見表 12枚を保存";
+    $("dlnotes").textContent="📕 ノート用まとめ 13枚を保存";
+    setTimeout(()=>{ if(info.textContent.indexOf("読み込み中")<0) info.innerHTML=keep; },6000);
+  }
+}
+$("dlsheets").onclick=()=>saveImages("sheets/",SHEET_IMGS,"早見表12枚",$("dlsheets"));
+$("dlnotes").onclick =()=>saveImages("notes/", NOTE_IMGS, "まとめ13枚", $("dlnotes"));
 
 /* 設定シート */
 const openCfg=on=>{$("sheet").classList.toggle("on",on);$("scrim").classList.toggle("on",on);};
